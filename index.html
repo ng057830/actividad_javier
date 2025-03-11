@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulación de Test para Evaluación Laboral</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+  <style>
+    :root {
+      --primary-color: #5e35b1;       /* Púrpura */
+      --primary-hover: #512da8;
+      --secondary-color: #fbc02d;     /* Amarillo mostaza */
+      --background-color: #e8eaf6;    /* Azul muy claro */
+      --surface-color: #ffffff;
+      --text-primary: #263238;        /* Azul grisáceo */
+      --text-secondary: #757575;
+      --border-color: #cfd8dc;
+      --shadow-color: rgba(94,53,177,0.15);
+      --success-color: #43a047;
+      --warning-color: #fdd835;
+      --error-color: #e53935;
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+    body {
+      background: var(--background-color);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 1rem;
+    }
+    .container {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: var(--surface-color);
+      border-radius: 1rem;
+      box-shadow: 0 4px 12px var(--shadow-color);
+    }
+    .card {
+      background: var(--surface-color);
+      border-radius: 1rem;
+      padding: 2rem;
+      box-shadow: 0 4px 12px var(--shadow-color);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 16px var(--shadow-color);
+    }
+    .screen {
+      display: none;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.5s ease;
+    }
+    .screen.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+    h1, h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    h1 {
+      color: var(--primary-color);
+      font-size: 2.5rem;
+      font-weight: 700;
+    }
+    h2 {
+      color: var(--text-primary);
+      font-size: 1.75rem;
+      font-weight: 600;
+    }
+    .btn {
+      background-color: var(--primary-color);
+      color: #fff;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      font-size: 1.125rem;
+      font-weight: 500;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .btn:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-2px);
+    }
+    .btn:active {
+      transform: translateY(0);
+    }
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+      margin: 2rem 0;
+    }
+    .option-card {
+      padding: 1rem;
+      border: 2px solid var(--border-color);
+      border-radius: 0.75rem;
+      cursor: pointer;
+      background: var(--surface-color);
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+    .option-card:hover {
+      border-color: var(--primary-color);
+      background-color: #eff6ff;
+    }
+    .option-card.selected {
+      border-color: var(--primary-color);
+      background-color: #e0f2fe;
+    }
+    .hint-card {
+      background-color: #ecfdf5;
+      border: 1px solid var(--success-color);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      margin-top: 1rem;
+      position: relative;
+    }
+    .hint-card::before {
+      content: '💡';
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      font-size: 1.5rem;
+    }
+    .progress-container {
+      width: 100%;
+      height: 0.5rem;
+      background-color: var(--border-color);
+      border-radius: 1rem;
+      margin: 1.5rem 0;
+      overflow: hidden;
+      position: relative;
+    }
+    .progress-bar {
+      height: 100%;
+      background-color: var(--primary-color);
+      border-radius: 1rem;
+      transition: width 0.5s ease;
+      position: relative;
+    }
+    .result-card {
+      text-align: center;
+      padding: 3rem 2rem;
+    }
+    .score-display {
+      font-size: 3rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      margin: 2rem 0;
+    }
+    .feedback-text {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+    }
+    .welcome-features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+    .feature-card {
+      padding: 1.5rem;
+      background: var(--surface-color);
+      border-radius: 0.75rem;
+      border: 1px solid var(--border-color);
+      text-align: center;
+    }
+    .feature-icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    @media (max-width: 768px) {
+      .container {
+        margin: 1rem;
+        padding: 1.5rem;
+      }
+      h1 {
+        font-size: 2rem;
+      }
+      h2 {
+        font-size: 1.5rem;
+      }
+      .options-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Pantalla de Inicio -->
+    <div id="startScreen" class="screen active card">
+      <h1>Simulación de Test para Empleo</h1>
+      <h2>Razonamiento Cuantitativo y Análisis de Datos</h2>
+      <div class="welcome-features">
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3>25 Preguntas</h3>
+          <p>Ejercicios prácticos para desarrollar tu razonamiento numérico.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">💡</div>
+          <h3>Pistas Teóricas</h3>
+          <p>Orientaciones generales para guiar tu pensamiento sin revelar la solución.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🎯</div>
+          <h3>Preparación para Test</h3>
+          <p>Simula escenarios de evaluación para multinacionales como Amazon y Google.</p>
+        </div>
+      </div>
+      <button class="btn" onclick="startQuiz()">
+        Comenzar Evaluación
+        <span>→</span>
+      </button>
+    </div>
+
+    <!-- Pantalla del Quiz -->
+    <div id="quizScreen" class="screen card">
+      <div class="progress-container">
+        <div id="progress" class="progress-bar"></div>
+      </div>
+      <h2 id="questionText"></h2>
+      <div id="options" class="options-grid"></div>
+      <button id="hintBtn" class="btn" onclick="showHint()" style="background-color: var(--secondary-color)">
+        <span>💡</span> Mostrar Pista
+      </button>
+      <div id="hintContainer" class="hint-card" style="display: none;"></div>
+    </div>
+
+    <!-- Pantalla de Resultados -->
+    <div id="resultsScreen" class="screen card result-card">
+      <h1>Resultados de la Evaluación</h1>
+      <div class="score-display" id="score"></div>
+      <p class="feedback-text" id="feedback"></p>
+      <button class="btn" onclick="restartQuiz()">
+        <span>🔄</span> Intentar Nuevamente
+      </button>
+    </div>
+  </div>
+
+  <script>
+    MathJax.Hub.Config({
+      tex2jax: { inlineMath: [['\\(', '\\)']] }
+    });
+
+    // Array de 25 preguntas enfocadas en habilidades de razonamiento cuantitativo y análisis
+    // Los contextos se adaptan a escenarios laborales de multinacionales y se usan pesos mexicanos.
+    const questions = [
+      {
+        question: "1. Evalúa la expresión: \\((\\frac{1}{2} + \\frac{2}{3}) \\times 3\\)",
+        options: ["2.5", "3", "2", "2.75"],
+        correct: 0,
+        hints: [
+          "Resuelve primero lo que está dentro del paréntesis.",
+          "Busca un denominador común para sumar las fracciones.",
+          "Luego, aplica la multiplicación por 3 siguiendo la jerarquía."
+        ]
+      },
+      {
+        question: "2. Calcula: \\(\\frac{7}{10} \\times 20\\)",
+        options: ["14", "12", "15", "13"],
+        correct: 0,
+        hints: [
+          "Multiplica la fracción por el número entero.",
+          "Observa cómo se simplifica el resultado.",
+          "Verifica el producto de manera secuencial."
+        ]
+      },
+      {
+        question: "3. Resuelve: \\(100 - (25 + 15)\\)",
+        options: ["45", "50", "60", "55"],
+        correct: 0,
+        hints: [
+          "Suma los números dentro del paréntesis primero.",
+          "Resta el resultado de 100.",
+          "Verifica que se aplique el orden correcto."
+        ]
+      },
+      {
+        question: "4. Resuelve: \\((45 + 15) \\div 6\\)",
+        options: ["10", "8", "9", "12"],
+        correct: 0,
+        hints: [
+          "Suma primero los números en el paréntesis.",
+          "Divide el total entre 6.",
+          "Comprueba que el resultado sea un entero."
+        ]
+      },
+      {
+        question: "5. Evalúa: \\((30 \\times 2) - (18 \\div 3)\\)",
+        options: ["54", "55", "56", "57"],
+        correct: 0,
+        hints: [
+          "Realiza las operaciones de multiplicación y división antes de restar.",
+          "Sigue la jerarquía de operaciones.",
+          "Verifica el resultado de cada paso."
+        ]
+      },
+      {
+        question: "6. Calcula: \\(\\frac{8}{4} + \\frac{9}{3}\\)",
+        options: ["5", "6", "4", "7"],
+        correct: 0,
+        hints: [
+          "Simplifica cada fracción de forma individual.",
+          "Suma los resultados.",
+          "Revisa que se respete el orden de las operaciones."
+        ]
+      },
+      {
+        question: "7. Resuelve: \\((15 - 5) \\times (7 + 3)\\)",
+        options: ["100", "90", "80", "110"],
+        correct: 0,
+        hints: [
+          "Resuelve cada paréntesis por separado.",
+          "Multiplica los resultados obtenidos.",
+          "Confirma que ambas operaciones se realicen correctamente."
+        ]
+      },
+      {
+        question: "8. Calcula: \\((60 \\div 5) + (30 \\div 2)\\)",
+        options: ["24", "25", "26", "27"],
+        correct: 3,
+        hints: [
+          "Realiza cada división primero.",
+          "Luego, suma ambos resultados.",
+          "Asegúrate de que el resultado final sea coherente."
+        ]
+      },
+      {
+        question: "9. Encuentra el siguiente número en la serie: 10, 15, 21, 28, \\(\\underline{\\quad}\\)",
+        options: ["36", "35", "37", "38"],
+        correct: 0,
+        hints: [
+          "Observa las diferencias entre cada término.",
+          "Determina el patrón de incremento.",
+          "Suma la diferencia al último término para extender la serie."
+        ]
+      },
+      {
+        question: "10. Encuentra el siguiente número en la serie: 5, 9, 14, 20, \\(\\underline{\\quad}\\)",
+        options: ["27", "26", "25", "28"],
+        correct: 0,
+        hints: [
+          "Analiza las diferencias entre términos consecutivos.",
+          "Observa el incremento que aumenta en 1 cada vez.",
+          "Extiende el patrón sumando el incremento adecuado."
+        ]
+      },
+      {
+        question: "11. En una competencia, se sabe que: <br> - Luis llegó antes que Carmen; <br> - Rodrigo llegó después que Carmen pero antes que Mariana; <br> - Mariana no fue la primera. <br> ¿Cuál es un posible orden de llegada?",
+        options: [
+          "Luis, Carmen, Rodrigo, Mariana",
+          "Luis, Rodrigo, Carmen, Mariana",
+          "Carmen, Luis, Rodrigo, Mariana",
+          "Rodrigo, Carmen, Luis, Mariana"
+        ],
+        correct: 0,
+        hints: [
+          "Organiza las condiciones dadas en el enunciado.",
+          "Establece una secuencia que cumpla todas las relaciones.",
+          "Recuerda que pueden existir más de una solución válida; elige una coherente."
+        ]
+      },
+      {
+        question: "12. Evalúa: \\(200 \\div (5 + 5) \\times 10\\)",
+        options: ["200", "180", "160", "220"],
+        correct: 0,
+        hints: [
+          "Resuelve primero el paréntesis en el denominador.",
+          "Realiza la división y luego la multiplicación.",
+          "Verifica el orden correcto de las operaciones."
+        ]
+      },
+      {
+        question: "13. Un artículo cuesta 2500 pesos y se le aplica un descuento del 18 porciento. ¿Cuál es el precio final?",
+        options: ["2050", "2100", "2000", "2150"],
+        correct: 0,
+        hints: [
+          "Aplica el descuento sobre el precio inicial.",
+          "Calcula el monto del descuento y réstalo del precio.",
+          "Recuerda que el descuento se aplica de forma secuencial."
+        ]
+      },
+      {
+        question: "14. Un empleado gana 12000 pesos mensuales y recibe un aumento del 12 porciento. ¿Cuál es su nuevo salario?",
+        options: ["13440", "13240", "13540", "13340"],
+        correct: 0,
+        hints: [
+          "Determina el incremento multiplicando el salario por 12 porciento.",
+          "Suma el incremento al salario original.",
+          "Verifica que el resultado sea coherente."
+        ]
+      },
+      {
+        question: "15. En una clase de 50 alumnos, el 40 porciento obtuvo calificaciones superiores a 85. ¿Cuántos alumnos son y cuántos adicionales se requieren para llegar al 60 porciento?",
+        options: [
+          "20 alumnos, se requieren 10 adicionales",
+          "20 alumnos, se requieren 12 adicionales",
+          "25 alumnos, se requieren 5 adicionales",
+          "18 alumnos, se requieren 12 adicionales"
+        ],
+        correct: 0,
+        hints: [
+          "Calcula el 40 porciento de 50 para saber cuántos cumplen la condición.",
+          "Determina el 60 porciento de la clase.",
+          "La diferencia es el número de alumnos adicionales necesarios."
+        ]
+      },
+      {
+        question: "16. Se invierte 10000 pesos a una tasa de interés simple del 7 porciento anual durante 3 años. ¿Cuál es el monto total al final?",
+        options: ["12100", "12200", "12000", "12150"],
+        correct: 0,
+        hints: [
+          "Aplica la fórmula del interés simple: I = P × r × t.",
+          "Calcula el interés (10000 × 0.07 × 3).",
+          "Suma el interés al capital para obtener el monto final."
+        ]
+      },
+      {
+        question: "17. Para pintar una pared de 85 m², si 7 litros de pintura cubren 25 m², ¿cuántos litros se necesitan?",
+        options: ["24 litros", "23 litros", "22 litros", "25 litros"],
+        correct: 0,
+        hints: [
+          "Establece la proporción: 7 litros / 25 m² = x litros / 85 m².",
+          "Resuelve la ecuación mediante multiplicación cruzada.",
+          "Verifica que las unidades sean consistentes."
+        ]
+      },
+      {
+        question: "18. Una receta para 6 personas requiere 300 gramos de harina. Para preparar la receta para 10 personas: <br> a) ¿Cuántos gramos se necesitan inicialmente?<br> b) Si se decide aumentar esa cantidad en un 15 porciento, ¿cuántos gramos se usarán en total?",
+        options: ["500 g y 575 g", "500 g y 565 g", "510 g y 580 g", "490 g y 560 g"],
+        correct: 0,
+        hints: [
+          "Determina la cantidad de harina por persona y escala al número de personas.",
+          "Extiende el cálculo para obtener el total para 10 personas.",
+          "Aplica un aumento del 15 porciento sobre ese total sin dar la solución completa."
+        ]
+      },
+      {
+        question: "19. En un mapa con escala 1:50000, la distancia entre dos ciudades es de 7.2 cm. ¿Cuál es la distancia real en kilómetros?",
+        options: ["36 km", "3.6 km", "0.36 km", "7.2 km"],
+        correct: 1,
+        hints: [
+          "Multiplica 7.2 cm por 50000 para obtener la distancia en cm.",
+          "Convierte centímetros a kilómetros (1 km = 100000 cm).",
+          "Asegúrate de realizar la conversión correctamente."
+        ]
+      },
+      {
+        question: "20. En un laboratorio se mezcla una solución con dos líquidos A y B en proporción 3:5. <br> a) Si se tienen 120 ml de A, ¿cuántos ml de B se necesitan?<br> b) Para preparar 560 ml de solución, ¿cuántos ml de cada uno se requieren?",
+        options: ["200 ml y (210 ml, 350 ml)", "200 ml y (220 ml, 340 ml)", "180 ml y (210 ml, 350 ml)", "200 ml y (205 ml, 355 ml)"],
+        correct: 0,
+        hints: [
+          "Utiliza la regla de tres simple para relacionar los volúmenes.",
+          "Suma las partes del ratio (3+5 = 8) para determinar la fracción correspondiente.",
+          "Distribuye el total de forma proporcional según el ratio dado."
+        ]
+      },
+      {
+        question: "21. Una tienda de Amazon vende dispositivos electrónicos. El primer día se vendieron 60 unidades y el segundo día 20 unidades más. Si al tercer día se vendieron el doble de las unidades del primer día, ¿cuántas unidades se vendieron en total en los tres días?",
+        options: ["260", "250", "270", "280"],
+        correct: 0,
+        hints: [
+          "Determina las ventas de cada día basándote en la información dada.",
+          "Aplica la suma de las unidades vendidas en cada día.",
+          "Verifica que la suma total sea coherente con los datos."
+        ]
+      },
+      {
+        question: "22. Un centro de atención de Amazon tiene 4 equipos de soporte. Si los equipos atendieron 50, 60, 60 y 70 llamadas respectivamente, ¿cuál es el promedio de llamadas atendidas?",
+        options: ["60", "58", "62", "64"],
+        correct: 0,
+        hints: [
+          "Suma las llamadas atendidas por todos los equipos.",
+          "Divide el total entre 4 para obtener el promedio.",
+          "Verifica el resultado de la división."
+        ]
+      },
+      {
+        question: "23. Una campaña publicitaria de Amazon aumentó las visitas a una página web de 400 a 520 el primer día y a 650 el segundo día. ¿Cuántas visitas se incrementaron en total durante esos dos días?",
+        options: ["250", "240", "260", "230"],
+        correct: 0,
+        hints: [
+          "Calcula el aumento de visitas del primer día y del segundo día por separado.",
+          "Suma ambos incrementos para obtener el total.",
+          "Verifica que el total sea coherente con la variación diaria."
+        ]
+      },
+      {
+        question: "24. En una prueba de rendimiento, un empleado de Amazon resuelve 15 casos en 3 horas. Si mantiene el mismo ritmo, ¿cuántos casos resolverá en 8 horas?",
+        options: ["40", "38", "42", "44"],
+        correct: 0,
+        hints: [
+          "Determina cuántos casos resuelve por hora.",
+          "Multiplica ese número por 8 para obtener la solución.",
+          "Revisa la proporcionalidad del cálculo."
+        ]
+      },
+      {
+        question: "25. Un paquete de productos de Amazon contiene 24 unidades. Si se agrupan en cajas de 6 unidades, ¿cuántas cajas se pueden formar sin que sobre nada?",
+        options: ["4", "3", "5", "6"],
+        correct: 0,
+        hints: [
+          "Divide el total de unidades por la cantidad que cabe en cada caja.",
+          "Asegúrate de que el resultado sea un número entero.",
+          "Verifica que no haya residuo en la división."
+        ]
+      }
+    ];
+
+    // Función para barajar las opciones y actualizar el índice de la respuesta correcta.
+    function shuffleOptions(question) {
+      for (let i = question.options.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [question.options[i], question.options[j]] = [question.options[j], question.options[i]];
+        if (question.correct === i) {
+          question.correct = j;
+        } else if (question.correct === j) {
+          question.correct = i;
+        }
+      }
+    }
+
+    // Barajar las opciones de cada pregunta al iniciar.
+    questions.forEach(shuffleOptions);
+
+    let currentQuestion = 0;
+    let score = 0;
+    let selectedOption = null;
+    let currentHint = 0;
+
+    function startQuiz() {
+      document.getElementById('startScreen').classList.remove('active');
+      document.getElementById('quizScreen').classList.add('active');
+      showQuestion();
+    }
+
+    function showQuestion() {
+      const question = questions[currentQuestion];
+      document.getElementById('questionText').innerHTML = question.question;
+      document.getElementById('progress').style.width = `${(currentQuestion / questions.length) * 100}%`;
+      const optionsContainer = document.getElementById('options');
+      optionsContainer.innerHTML = '';
+
+      question.options.forEach((option, index) => {
+        const optionDiv = document.createElement('div');
+        optionDiv.className = 'option-card';
+        optionDiv.innerHTML = option;
+        optionDiv.onclick = () => {
+          selectOption(index);
+          setTimeout(() => nextQuestion(), 500);
+        };
+        optionsContainer.appendChild(optionDiv);
+      });
+
+      MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+      document.getElementById('hintContainer').style.display = 'none';
+      currentHint = 0;
+      selectedOption = null;
+    }
+
+    function selectOption(index) {
+      const options = document.querySelectorAll('.option-card');
+      options.forEach(option => option.classList.remove('selected'));
+      options[index].classList.add('selected');
+      selectedOption = index;
+    }
+
+    function showHint() {
+      const question = questions[currentQuestion];
+      if (currentHint < question.hints.length) {
+        const hintContainer = document.getElementById('hintContainer');
+        hintContainer.style.display = 'block';
+        hintContainer.innerHTML = question.hints[currentHint];
+        currentHint++;
+        MathJax.Hub.Queue(["Typeset", MathJax.Hub, hintContainer]);
+      }
+    }
+
+    function nextQuestion() {
+      if (selectedOption !== null) {
+        if (selectedOption === questions[currentQuestion].correct) {
+          score++;
+        }
+        currentQuestion++;
+        if (currentQuestion < questions.length) {
+          showQuestion();
+        } else {
+          showResults();
+        }
+      } else {
+        alert('Por favor, selecciona una opción.');
+      }
+    }
+
+    function showResults() {
+      document.getElementById('quizScreen').classList.remove('active');
+      document.getElementById('resultsScreen').classList.add('active');
+      const scoreElement = document.getElementById('score');
+      const feedbackElement = document.getElementById('feedback');
+      const percentage = (score / questions.length) * 100;
+      scoreElement.textContent = `${score} de ${questions.length} (${percentage.toFixed(1)}%)`;
+      if (percentage >= 80) {
+        feedbackElement.innerHTML = "¡Excelente trabajo! 🌟<br>Has demostrado un sólido dominio de las habilidades evaluadas.";
+      } else if (percentage >= 60) {
+        feedbackElement.innerHTML = "¡Buen esfuerzo! 👍<br>Aún hay áreas que puedes reforzar para mejorar.";
+      } else {
+        feedbackElement.innerHTML = "¡Sigue practicando! 💪<br>Identifica los conceptos que necesitan mayor atención.";
+      }
+    }
+
+    function restartQuiz() {
+      currentQuestion = 0;
+      score = 0;
+      selectedOption = null;
+      document.getElementById('resultsScreen').classList.remove('active');
+      document.getElementById('startScreen').classList.add('active');
+      questions.forEach(shuffleOptions);
+    }
+  </script>
+</body>
+</html>
