@@ -541,8 +541,9 @@
       }
     ];
 
-    // Añadir una pista extra en LaTeX a cada pregunta
-    questions.forEach(q => q.hints.push('Revisa cada paso cuidadosamente \\textit{paso a paso}.'));
+    // Añadir una pista extra a cada pregunta
+    // Esta pista no utiliza LaTeX para evitar errores de compilación innecesarios
+    questions.forEach(q => q.hints.push('Revisa cada paso cuidadosamente paso a paso.'));
 
     // Función para barajar las opciones y actualizar el índice de la respuesta correcta.
     function shuffleOptions(question) {
@@ -607,7 +608,8 @@
       if (currentHint < question.hints.length) {
         const hintContainer = document.getElementById('hintContainer');
         hintContainer.style.display = 'block';
-        hintContainer.innerHTML = `\\(\\text{${question.hints[currentHint]}}\\)`;
+        // Mostrar la pista tal cual se escribió. Si contiene LaTeX, MathJax la procesará.
+        hintContainer.innerHTML = question.hints[currentHint];
         hintContainer.classList.add('show');
         currentHint++;
         MathJax.Hub.Queue(["Typeset", MathJax.Hub, hintContainer]);
